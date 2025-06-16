@@ -12,5 +12,11 @@ import java.util.Optional;
 
 public interface AccountRepository extends JpaRepository<Account, Long> {
 
+    @Lock(LockModeType.OPTIMISTIC)
+    @Query("select a from Account a where a.id = :id")
+    Optional<Account> findByIdWithOptimisticLock(@Param("id") Long id);
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select a from Account a where a.id = :id")
+    Optional<Account> findByIdWithPessimisticLock(@Param("id") Long id);
 }
