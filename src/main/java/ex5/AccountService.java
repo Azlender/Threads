@@ -25,11 +25,19 @@ public class AccountService {
 
     @Transactional
     public void transferMoneyWithOptimisticLock(Long accountId, double amount) {
-
+        try {
+            Account account = accountRepository.findByIdWithOptimisticLock(accountId).orElseThrow();
+            account.setBalance(account.getBalance() + amount);
+            accountRepository.save(account);
+        } catch (ObjectOptimisticLockingFailureException e) {
+            throw new ObjectOptimisticLockingFailureException("Ошибка оптимистичной блокировки", e);
+        }
     }
 
     @Transactional
     public void transferMoneyWithPessimisticLock(Long accountId, double amount) {
-
+        Account account = accountRepository.findByIdWithPessimisticLock(accountId).orElseThrow();
+        account.setBalance(account.getBalance() + amount);
+        accountRepository.save(account);
     }
 }
